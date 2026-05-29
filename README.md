@@ -10,6 +10,11 @@ This project transforms a flat, raw student performance dataset into a fully nor
 * **Tools:** pgAdmin 4, VS Code, Git/GitHub
 * **SQL Concepts utilized:** Data Definition Language (DDL), Data Manipulation Language (DML), Primary & Foreign Key Constraints, Staging Tables, Duplicate Resolution (`ON CONFLICT`), and Data Cleanliness Constraints (`NOT NULL`).
 
+## 🗄️ Database Creation & Initialization
+Before running the SQL scripts, a dedicated database must be initialized in PostgreSQL. You can create this via the pgAdmin Query Tool or your terminal using the following command:
+```sql
+CREATE DATABASE student_performance;
+
 
 ## 📐 Database Architecture & Normalization
 The raw data was ingested into a temporary staging area (`student_performance_staging`) to audit the schema and clean data types. From there, the dataset was normalized into a 3-table relational schema to eliminate data redundancy and enforce relational integrity:
