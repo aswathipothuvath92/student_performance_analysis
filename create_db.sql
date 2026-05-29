@@ -6,4 +6,5 @@ SELECT 'Creating database...' AS status;
 
 -- Note: In standard SQL, CREATE DATABASE cannot run inside a transaction block. 
 -- Ensure this is executed on your default postgres server connection.
-CREATE DATABASE student_performance;
+--CREATING STUDENT PERFORMANCE DATABASE--
+CREATE DATABASE Student_perfomance_DB;
