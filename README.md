@@ -38,11 +38,18 @@ The raw data was ingested into a temporary staging area (`student_performance_st
   * *Solution:* Implemented explicit `WHERE student_id IS NOT NULL` filtration alongside `ON CONFLICT (student_id) DO NOTHING` clauses to dynamically filter out broken rows and handle duplicates without crashing the pipeline.
 * **Challenge: Data Inconsistencies & Structural Anomalies.** The raw staging data contained missing records, text formatting discrepancies, and logical contradictions between related metrics.
   * *Solution:* Implemented comprehensive cleaning logic in `clean_data.sql` to:
-    * **Handle Missing Data:** Identified `NULL` values across key academic metrics and systematically amended them using calculated averages and populated baseline values to maintain dataset integrity.
+    * **Handle Missing Data:** Identified `NULL` values across key academic metrics and systematically amended them using calculated averages and populated baseline values using CASE to maintain dataset integrity.
     * **Resolve Metric Mismatches:** Audited and reconciled logical conflicts between `attendance_rate` and `attendance_percentage` to ensure mathematical consistency across reporting features.
     * **Standardize Text Fields:** Checked for inconsistent text formatting across categorical columns for reliable grouping.
 * **Challenge: Deep Data Anomalies & Duplicate Records.** Standard migration scripts risked contamination due to unexpected duplicate rows sharing the same student names or metrics, as well as placeholders like 'unknown' students repeating.
-  * *Solution:* Developed deep audit queries in `clean_data.sql` utilizing advanced aggregations (`GROUP BY` and `HAVING COUNT(*) > 1`)and LEFT JOINs.  This allowed for a deep-dive verification into specific rows (e.g., checking conflicting metrics across repeating student names like 'Anthony Smith') to isolate true structural duplicates from expected natural data overlap before applying `ON CONFLICT` constraints.
+  * *Solution:* Developed deep audit queries in `clean_data.sql` utilizing advanced aggregations (`GROUP BY` and `HAVING COUNT(*) > 1`) to flag potential duplicates. To verify whether these rows represented true data duplication or natural data overlap, I implemented a defensive **`LEFT JOIN` pipeline audit script** to drill down into target student profiles (e.g., 'Anthony Smith', 'Andrea Frey', 'Erica Miller') across all split relational tables without risking data loss from missing records:
+```sql
+  SELECT S.student_name, S.gender, A.attendance_rate, A.attendance_percentage, E.online_class_status
+  FROM students S
+  LEFT JOIN academics A ON S.student_id = A.student_id
+  LEFT JOIN engagement E ON S.student_id = E.student_id
+  WHERE S.student_name IN ('Anthony Smith', 'Andrea Frey', 'Erica Miller');
+```
 
 
 ## 📈 Next Steps
