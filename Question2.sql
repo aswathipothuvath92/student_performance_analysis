@@ -33,7 +33,7 @@ SELECT
         ROUND(100.0*COUNT(CASE WHEN final_grade>previous_grade THEN 1 END)/COUNT(*),2)AS Percentage_of_improved_students
 FROM academics
 GROUP BY StudyHours_Bucket
-ORDER BY Percentage_of_improved_students;
+ORDER BY StudyHours_Bucket;
         
         
    
