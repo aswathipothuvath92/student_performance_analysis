@@ -1,33 +1,18 @@
-/*
-===============================================================================
-QUESTION 3
-Investigating the Relationship Between Attendance Thresholds and Grades
+-- ====================================================================================================
+-- QUESTION 3: THE ATTENDANCE-PERFORMANCE PARADOX & ADVANCED COHORT ANALYSIS
+-- 
+-- Business Investigation: 
+-- 1. AUDIT: Are our data metrics clean, and what are the operational boundaries?
+-- 2. MACRO TRENDS: How do attendance brackets correlate with grade mastery vs. directional growth?
+-- 3. MICRO DEEP-DIVE: For students defying the odds, what specific habits enable their success?
+-- ====================================================================================================
 
-===============================================================================
-
-DESCRIPTION:
-  This script explores how student attendance rates correlate with both 
-  academic improvement (directional growth) and overall final grade mastery 
-  (absolute performance). It addresses a potential "ceiling effect" paradox 
-  where low-attendance students show higher improvement rates due to a lower 
-  starting baseline floor.
-
-SCHEMA REFERENCED:
-  - academics (student_id, attendance_rate, previous_grade, final_grade)
-
-TABLE OF CONTENTS:
-  1. Data Validation & Boundary Exploration
-  2. Macro Attendance Bracket Breakdown (Main Analysis)
-  3. Micro-Targeted Cohort Analysis via CTE (Rescue vs. Vulnerable Groups)
-===============================================================================
-*/
-
--- ===============================================================================
--- 1. DATA VALIDATION & BOUNDARY EXPLORATION
--- ===============================================================================
--- Purpose: To audit the ranges of the attendance columns before bucket design.
+-- ----------------------------------------------------------------------------------------------------
+-- PART 1: DATA VALIDATION & BOUNDARY EXPLORATION
+-- Purpose: Audit the operational ranges and scales of key columns before bucket design.
 -- Finding: 'attendance_percentage' contained corrupt scaling (Max: 200.0). 
---          'attendance_rate' proved clean (Range: 70.0 - 95.0) and was selected.
+--          'attendance_rate' proved clean (Range: 70.0 - 95.0) and was selected for tracking.
+-- ----------------------------------------------------------------------------------------------------
 
 SELECT 
     MIN(attendance_rate) AS min_att_rate,
@@ -41,13 +26,12 @@ SELECT
 FROM academics;
 
 
--- ===============================================================================
--- 2. MACRO ATTENDANCE BRACKET BREAKDOWN
--- ===============================================================================
--- Purpose: Aggregates metrics into three logical behavioral categories:
---          Low (<80%), Moderate (80-89%), and High (90-95%) attendance.
--- Insights: Reveals the "Ceiling Effect"—Low attendance correlates with high 
---           improvement percentage (61.26%) but lower absolute mastery (79.97).
+-- ----------------------------------------------------------------------------------------------------
+-- PART 2: MACRO ATTENDANCE BRACKET BREAKDOWN
+-- Purpose: Aggregate performance metrics into logical behavioral attendance categories.
+-- Insights: Reveals a "Ceiling Effect" where low attendance correlates with high directional 
+--           improvement percentage (61.26%) but a lower absolute mastery floor (79.97).
+-- ----------------------------------------------------------------------------------------------------
 
 SELECT 
     CASE 
@@ -65,36 +49,64 @@ GROUP BY attendance_category
 ORDER BY attendance_category;
 
 
--- ===============================================================================
--- 3. MICRO-TARGETED COHORT ANALYSIS (CTE FORMAT)
--- ===============================================================================
--- Purpose: Isolates specific cross-sections of the student population to prove 
---          the behavioral safety net of current attendance state.
--- Cohorts:
---   - Rescue Group (144 Students): Low baseline floor (<70) who improved with 
---     stable attendance (>=80%).
---   - Vulnerable Group (51 Students): High baseline floor (>80) who dropped with 
---     low attendance (<80%).
+-- ----------------------------------------------------------------------------------------------------
+-- PART 3: MICRO-TARGETED COHORT ANALYSIS & BEHAVIORAL PROFILING
+-- Purpose: Pull on the thread discovered in Part 2. If low-attendance students are improving at 
+--          high rates, what specific habits and environmental factors are enabling their success?
+--          Isolates the 47 Resilient Students and profiles the "Hyper-Resilient Seven".
+-- ----------------------------------------------------------------------------------------------------
 
-WITH student_behavior_segments AS (
+WITH Resilient_students AS (
     SELECT 
-        student_id,
-        previous_grade,
-        final_grade,
-        attendance_rate,
-        -- Staging directional growth indicators for downstream clean aggregation
-        CASE WHEN final_grade > previous_grade THEN 1 ELSE 0 END AS did_improve,
-        CASE WHEN final_grade < previous_grade THEN 1 ELSE 0 END AS did_drop
-    FROM academics
+        A.student_id,
+        A.attendance_rate,
+        E.online_class_status,
+        E.parental_support,
+        A.study_hours_per_week,
+        E.extracurricular_activities
+    FROM academics A
+    JOIN engagement E ON A.student_id = E.student_id
+    WHERE A.previous_grade < 70               -- Condition 1: Initially failing baseline floor
+      AND A.attendance_rate < 80              -- Condition 2: Chronic absenteeism
+      AND A.final_grade > A.previous_grade    -- Condition 3: Achieved positive grade growth
+),
+
+Hyper_resilient_students AS (
+    SELECT 
+        MIN(study_hours_per_week) AS min_hours,
+        MAX(study_hours_per_week) AS max_hours,
+        ROUND(AVG(study_hours_per_week), 2) AS avg_hours,GIT 
+        ROUND(AVG(attendance_rate), 2) AS avg_att,
+        ROUND(AVG(extracurricular_activities), 2) AS avg_activities
+    FROM Resilient_students
+    WHERE online_class_status = 'No'          -- Barrier 1: No digital/asynchronous backup
+      AND parental_support = 'Low'            -- Barrier 2: Low domestic support network
 )
+
 SELECT 
-    -- Cohort 1: The Low-Baseline Rescue Count
-    COUNT(CASE WHEN previous_grade < 70 AND attendance_rate >= 80 AND did_improve = 1 THEN 1 END) 
-        AS count_of_students_grade_improved_with_good_attendance,
-        
-    -- Cohort 2: The High-Baseline Vulnerable Count
-    COUNT(CASE WHEN previous_grade > 80 AND attendance_rate < 80 AND did_drop = 1 THEN 1 END) 
-        AS count_of_students_grade_dropped_with_low_attendance
-FROM student_behavior_segments;
+    -- Macro Distribution Insights (The 47 Resilient Kids)
+    COUNT(*) AS total_resilient_count,
+    COUNT(CASE WHEN online_class_status = 'Yes' THEN 1 END) AS count_with_online_class,
+    COUNT(CASE WHEN online_class_status = 'No' THEN 1 END) AS count_without_online_class,
+    COUNT(CASE WHEN parental_support = 'High' THEN 1 END) AS count_with_high_parental_support,
+    COUNT(CASE WHEN parental_support = 'Medium' THEN 1 END) AS count_with_med_parental_support,
+    COUNT(CASE WHEN parental_support = 'Low' THEN 1 END) AS count_with_low_parental_support,
+    
+    -- Deep-Dive Behavioral Metrics (The Hyper-Resilient 7 Formula)
+    (SELECT avg_hours FROM Hyper_resilient_students) AS hyper_7_avg_study_hours,
+    (SELECT max_hours FROM Hyper_resilient_students) AS hyper_7_max_study_hours,
+    (SELECT avg_activities FROM Hyper_resilient_students) AS hyper_7_avg_activities
+FROM Resilient_students;
 
-
+-- ====================================================================================================
+-- 💡 FINAL INVESTIGATIVE CONCLUSION:
+-- 
+-- 1. DATA AUDIT: Validating boundaries caught an anomaly in 'attendance_percentage' (scaling up to 200.0),
+--    saving our downstream visualizations from broken parameters before any data buckets were built.
+-- 2. THE DIGITAL SUBSTITUTE: 25 out of 47 resilient students used online classes to offset low physical 
+--    attendance. Remote learning models provide a critical safety net for non-traditional schedules.
+-- 3. THE HYPER-RESILIENT STRATEGY: Strip away parental support and online classes, and the remaining 7 
+--    students survive on pure operational discipline. They substitute physical seat-time with a massive 
+--    16.71-hour weekly independent study grind, while strictly budgeting extracurriculars to 1.29 to 
+--    prevent complete time poverty and burnout.
+-- ====================================================================================================
