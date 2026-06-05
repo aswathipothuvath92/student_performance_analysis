@@ -15,7 +15,7 @@
 
 ===================================================================
 
-*/--FINDING MINIMUM AND MAXIMUM STUDY HOURS ER WEEK
+*/--FINDING MINIMUM AND MAXIMUM STUDY HOURS PER WEEK
 SELECT
         MIN(study_hours_per_week),
         MAX(study_hours_per_week)  
