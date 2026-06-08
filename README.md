@@ -133,7 +133,48 @@ To push the analysis to its absolute limits, I used nested CTE logic to strip aw
 By accurately routing academic and engagement metrics, the data exposes their exact behavioral formula:
 * **The Time-Shifted Study Grind:** These 7 students completely replaced physical classroom lectures with aggressive independent sweat equity. They clocked an extraordinary average of **16.71 hours of weekly independent self-study**, scaling up to a maximum peak of **25.0 hours**.
 * **Rationed Extracurriculars:** They successfully balanced an average of **1.29 extracurricular activities**. They didn't isolate themselves entirely, but they strictly budgeted their outside activities to prevent schedule collapse from extreme time poverty.
+---
 
+### 📊 Question 4: The Strategic Cohort Breakdown & Resilience Analysis
+This analysis shifts from general population metrics to isolate low-support student environments, identifying systemic behavioral trends and the exact formulas driving academic resilience.
+
+#### Core Analytical Framework:
+* **Approach A (Macro-Strategic Cohort Brackets):** Aggregates the low-support population using a conditional `CASE` statement to bucket outside participation into distinct engagement tiers: `1. No Engagement (0 Activities)`, `2. Optimal Engagement (1-2 Activities)`, and `3. High Engagement (3+ Activities)`.
+* **Approach B (Micro-Forensic Cohort Isolation):** Deploys windowed aggregation (`AVG(...) OVER()`) across the low-support demographic to establish a macro growth benchmark, filtering for the specific "resilient" students who beat the group's average net grade evolution.
+
+> 💡 **Key Portfolio Insight: The Optimal Engagement Target**
+> Approach B reveals that **exactly 125 isolated students** successfully beat the cohort average grade improvement curve. This resilient group maintains an optimal baseline average of **1.58 extracurricular activities**, proving empirically that a 1-2 activity range serves as the ideal lifestyle buffer for balancing academic stress.
+
+---
+
+### 📊 Question 5: Behavioral Profiles of Elite Achievers & Environment Partitions
+To validate the global sweet spot established in Question 4, this query audits the absolute highest-performing tier of students—those breaking past the **90% final grade threshold**. 
+
+#### The Uniform Distribution Workaround:
+Initial data profiling revealed a distinct uniform distribution challenge: 100% of these elite achievers sit at a completely identical final grade of exactly **92%**. To circumvent this uniform tie and provide an active leaderboard, analytical window functions (`RANK()` and `DENSE_RANK()`) were deployed, partitioned dynamically by parental support levels to expose how different environmental configurations manipulate study investments.
+
+#### Core Analytical Findings:
+
+1. **The Parental Support Partition Hierarchy:**
+   Evaluating localized ranks reveals that environmental success factors shift dynamically based on household engagement:
+   * Within both the **High** and **Low** parental support brackets, traditional in-person students (`online_class_status = 'No'`) capture the **#1 Rank**, registering the highest absolute self-study investments (maxing out at **19.75 hours/week** under high support).
+   * Conversely, this trend completely flips within the **Medium** parental support tier. Here, online students out-study their traditional peers, claiming the **#1 Rank** by securing a higher baseline of **16.42 hours/week**.
+
+2. **Validation of the Global Benchmarks:**
+   The un-aggregated, segmented metrics of this elite cohort completely validate the global sweet spot. Top-performing student groups cluster tightly within an optimized operational envelope, maintaining attendance marks between **81.50% and 86.63%** while logging **16.31 to 19.75 hours** of weekly independent study.
+
+3. **The Extracurricular Anchor:**
+   Across every single environmental variation and parental support tier, the aggregate footprint for outside commitments remains highly compressed, tracking strictly between **1.17 and 1.89 activities**. This provides definitive proof that elite achievers actively use a 1-2 activity cap as a hard behavioral brake to protect their academic focus.
+
+---
+
+---
+
+### 🛠️ Key SQL Implementations Featured (Questions 4 & 5)
+* **Common Table Expressions (CTEs):** Used to isolate individual student cohorts and aggregate multi-layered behavioral profiles sequentially.
+* **Window Functions (`OVER`, `PARTITION BY`):** Deployed to rank localized cohorts dynamically, bypassing uniform data distributions without destroying the underlying data grain.
+* **Conditional Logic (`CASE WHEN`):** Utilized to build custom demographic and engagement buckets directly within relational queries.
+* **Data Profiling & Aggregation:** Leveraging rounded averages (`ROUND(AVG(), 2)`) to establish precise, bulletproof metrics for presentation layer dashboards.
 > **💡 Executive Portfolio Summary:** 
 > Traditional educational frameworks treat absenteeism as a proxy for student apathy. This investigative model flatly disproves that assumption. A core segment of low-attendance students are highly disciplined, self-directed independent learners executing a strict "compensation strategy." Rather than enforcing purely disciplinary, attendance-based policies, institutions should offer structured, asynchronous course components to directly support the self-directed independent grind these students are already putting in.
 
@@ -160,8 +201,16 @@ Based on the macro trends and micro-cohort behavioral insights extracted from th
 * **The Data:** The hyper-resilient micro-cohort didn't isolate themselves; they carefully rationed their schedule to maintain an average of **1.29 extracurricular activities** to stay connected without burning out.
 * **Action:** Academic advisors should avoid the knee-jerk reaction of completely banning extracurriculars for struggling students. Instead, implement a data-backed "sweet spot" boundary—guiding at-risk students to commit to exactly **1 or 2 structured activities** to maintain peer motivation and school engagement while strictly protecting their self-study hours.
 
+### 5. Optimize student success
+
+* **Implement the "Optimal 1-2 Engagement Cap" Policy:** Counselors and academic advisors should actively discourage students from overextending into 3 or more extracurricular commitments. Faculty should promote a "quality over quantity" approach, guiding students to select exactly 1 to 2 focal activities to preserve their critical independent study blocks.
+* **Establish Targeted Support Interventions for 'Low Support' Cohorts:** Since resilient low-support students must log a demanding **18.96 hours of independent study** to compete at the elite tier, institutions should deploy subsidized on-campus study halls, peer-mentorship networks, and structured tutoring pipelines to alleviate this high-effort operational burden.
+* **Tailor Hybrid & Online Modalities by Household Support Dynamics:** * Ensure **Medium Support** students are provided with structured, high-quality digital learning modules, as they exhibit an exceptional capacity to maximize study efficiency (**16.42 hours**) and excel in online formats.
+  * Limit purely asynchronous online paths for **Low Support** tiers unless heavily augmented with digital accountability checks, as lower attendance rates in these unmanaged spaces risk pulling them away from the established success sweet spot.
+* **Target Operational Sweet Spots Over Perfection:** Shift institutional messaging from pushing for a baseline of 100% attendance to tracking an optimized equilibrium of **82% - 86% classroom attendance paired with 16 - 19 hours of weekly independent review**. Early alert dashboards can flag students who drop below these specific operational margins before grade degradation occurs.
+
+
 ## 📈 Next Steps
-* Ask more business questions to extract student performance insights.
 * Connect the finalized PostgreSQL database to a visualization tool to build a performance dashboard.
 
 
