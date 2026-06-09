@@ -24,7 +24,7 @@ SELECT
         online_class_status,
         COUNT(*) AS COUNT_OF_STUDENTS,
         ROUND(AVG(study_hours_per_week),2) AS Average_study_hours_per_week,
-        ROUND(AVG(attendance_percentage)) AS average_attendace_percentage,
+        ROUND(AVG(attendance_rate)) AS average_attendace_rate,
         ROUND(AVG(extracurricular_activities),2) AS AVG_NO_OF_EXTRA_CURRICULAR_CLASSES
 FROM Performance_Momentum 
 GROUP BY Performance,parental_support,online_class_status
